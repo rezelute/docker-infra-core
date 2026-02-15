@@ -1,5 +1,6 @@
 # secrets
-bugsink_secret_key.txt
+secrets/*
+!secrets/bugsink_secret_key.example.txt
 
 # caddyfile
 Caddyfile

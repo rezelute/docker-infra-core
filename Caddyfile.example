@@ -1,0 +1,110 @@
+# Infrastructure Caddyfile
+
+# Routes traffic to application containers via the shared caddy_network
+
+# Handles SSL/TLS automatically via Let's Encrypt
+
+# ============================================
+
+# Infrastructure Services
+
+# ============================================
+
+# Bugsink - Public ingestion endpoint only (dont expose UI)
+
+bugsink-ingest.example.com {
+reverse_proxy bugsink:8000 {
+handle_path /api/\* {
+reverse_proxy bugsink:8000
+}
+respond 404
+}
+
+    encode gzip
+    log {
+        output file /var/log/caddy/bugsink-ingest.log
+    }
+
+}
+
+# ============================================
+
+# APP 1
+
+# ============================================
+
+# Client application
+
+# --------------------------------
+
+your-app.example.com {
+reverse_proxy your-project-client-1:80
+
+    # Enable gzip compression
+    encode gzip
+
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Prevent clickjacking
+        X-Frame-Options "SAMEORIGIN"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # Enable XSS protection
+        X-XSS-Protection "1; mode=block"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Logs
+    log {
+        output file /var/log/caddy/your-project-client.log
+        format json
+    }
+
+}
+
+# Server/Backend
+
+# --------------------------------
+
+api.example.com {
+reverse_proxy your-project-server-1:3001
+
+    # Enable gzip compression
+    encode gzip
+
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        # Prevent clickjacking
+        X-Frame-Options "DENY"
+        # Prevent MIME type sniffing
+        X-Content-Type-Options "nosniff"
+        # Referrer policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Logs
+    log {
+        output file /var/log/caddy/your-project-server.log
+        format json
+    }
+
+}
+
+# ============================================
+
+# Add more applications below as needed
+
+# ============================================
+
+# Example:
+
+# app2.example.com {
+
+# reverse_proxy app2-client-1:80
+
+# }

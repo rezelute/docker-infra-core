@@ -44,7 +44,7 @@ services:
       environment:
          SECRET_KEY_FILE: /run/secrets/bugsink_secret_key
          # TODO: Set ALLOWED_HOSTS and BASE_URL to your actual domain in production
-         ALLOWED_HOSTS: bugsink,bugsink-ingest.example.com
+         ALLOWED_HOSTS: bugsink,bugsink-ingest.example.com,localhost
          BASE_URL: https://bugsink-ingest.example.com
 
          USER_REGISTRATION: CB_NOBODY # Disable new user registration
@@ -58,11 +58,6 @@ services:
          - bugsink_secret_key
       networks:
          - caddy_network
-      healthcheck:
-         interval: 30s
-         timeout: 10s
-         retries: 3
-         start_period: 15s
 
 # Shared Docker network for reverse proxy routing
 # Application containers will connect to this network to be accessible via Caddy
